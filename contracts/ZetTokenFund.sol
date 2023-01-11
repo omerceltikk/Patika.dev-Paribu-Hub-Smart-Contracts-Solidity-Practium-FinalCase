@@ -7,7 +7,7 @@ contract ZetTokenFund {
     ZetToken public Token;
     RewardNFT public NFT;
     
-    constructor(address _tokenAddress, address _nftaddress) {
+    constructor(address payable _tokenAddress, address payable _nftaddress) {
         Token = ZetToken(_tokenAddress);
         NFT= RewardNFT(_nftaddress);
     }
@@ -23,17 +23,18 @@ contract ZetTokenFund {
     userInfo[] public userList;
     mapping(address => uint256) public userBalance;
     
-    function investMoney() public payable {
-        require(msg.value > 0);
-        Token.mint(msg.sender, msg.value);    
-        userBalance[msg.sender] += Token.balanceOf(msg.sender);
+    function investMoney(uint256 _amount) public payable {
+        require(_amount > 0);
+        userBalance[msg.sender] += _amount;
+        payable(address(this)).transfer(_amount);
+        Token.mint(msg.sender, _amount);    
     }
 
-    function startFund(uint256 _amount) public payable {
+    function startFund(uint256 _amount) public {
         require(_amount > 0, "Amount can not be equal to zero.");
         userInfo memory user;
 
-       if(!user.funded){
+       if(user.funded == false){
             userBalance[msg.sender] -= _amount;
             userList[userList.length-1]= userInfo({
             userAddress: msg.sender,
@@ -41,49 +42,46 @@ contract ZetTokenFund {
             funded: true,
             userAmount: _amount,
             budged: userBalance[msg.sender]
-            
         });
-            Token.transferFrom(msg.sender,address(this),_amount);
+            payable(address(this)).transfer(_amount);
             userList.push(user);
        }
     }
 
-    function cancel() public payable{
+    function cancel() public {
     userInfo memory user = userList[userList.length-1];
     require(user.userAddress == msg.sender, "Your address is not correct.");
-    
     uint256 amount = userBalance[msg.sender];
-    Token.transferFrom(msg.sender, address(this), amount*1/100);
     delete(userBalance[msg.sender]);
     delete(userList[userList.length-1]);
-    require(Token.transfer(msg.sender,amount), "transaction failed.");
+    payable(msg.sender).transfer(amount*99/100);
    }
 
    function milestone(uint256 _amount) public {
        userInfo memory user = userList[userList.length-1];
        require(user.userAddress == msg.sender, "Your address is not correct.");
-       require(block.timestamp >= user.startAt + 30 days, "Milestone payment is not started yet.");
+       require(block.timestamp >= user.startAt + 1 minutes, "Milestone payment is not started yet.");
        user.userAmount -= _amount;
        userBalance[msg.sender] -= _amount;
        Token.mint(msg.sender, _amount*5/100);
-       require(Token.transfer(msg.sender,_amount), "transaction failed.");
+       payable(msg.sender).transfer(_amount);
    }
 
-   function withdraw() public {
+   function withdraw(uint256 _amount) public {
        userInfo memory user = userList[userList.length-1];
 
        require(user.userAddress == msg.sender, "Your address is not correct.");
-       require(block.timestamp >= user.startAt + 60 days, "Fund is still continue.");
+       require(block.timestamp >= user.startAt + 1 minutes, "Fund is still continue.");
        
-       uint256 amount = userBalance[msg.sender];
-       require(Token.transfer(msg.sender,amount), "transaction failed.");
-       Token.mint(msg.sender, amount*10/100);
+       payable(msg.sender).transfer(_amount);
+       Token.mint(msg.sender, _amount*10/100);
    }
 
    function reward() public {
       userInfo memory user = userList[userList.length-1];
       require(user.userAddress == msg.sender, "Your address is not correct.");
-      require(block.timestamp >= user.startAt + 60 days, "Fund is still continue.");
+      require(block.timestamp >= user.startAt + 1 minutes, "Fund is still continue.");
       NFT.safeMint(msg.sender);
    }
+
 }

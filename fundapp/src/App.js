@@ -2,19 +2,19 @@ import { Box, Heading, Center, Flex, Text, Grid, Button, Input, GridItem } from 
 import { useState, useEffect } from 'react';
 import useConnection from './hooks/useConnection';
 import useContract from './hooks/useContract';
-import { fundAddress } from './config.js';
-import fundjson from "./metadata/fundabi.json"
+import { _contractAddress } from './config.js';
+import _contractAbi from "./metadata/fundabi.json"
 
 
 function App() {
   //deposit, transfer veya withdraw edilmek istenen tutar
   const [amount, setAmount] = useState(0);
-  const [address, userAddress] = useState("")
+  const [address, userAddress] = useState("");
   //kullanıcı bakiyesini tutan state
   const [balance, setBalance] = useState(0);
 
   const connection = useConnection();
-  const contract = useContract(fundAddress, fundjson.abi);
+  const contract = useContract(_contractAddress, _contractAbi.abi);
 
   const investMoney = async () => {
     const txn = await contract.deposit({ value: amount });
