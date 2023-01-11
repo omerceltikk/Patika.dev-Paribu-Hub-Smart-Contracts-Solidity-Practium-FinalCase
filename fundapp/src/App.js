@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import useConnection from './hooks/useConnection';
 import useContract from './hooks/useContract';
 import { _contractAddress } from './config.js';
-import _contractAbi from "./metadata/fundabi.json"
+import _contractAbi from "./metadata/zettokengameabi.json"
 
 
 function App() {
@@ -12,35 +12,43 @@ function App() {
   const [address, userAddress] = useState("");
   //kullanıcı bakiyesini tutan state
   const [balance, setBalance] = useState(0);
+  const [id, setId] = useState(0)
 
   const connection = useConnection();
   const contract = useContract(_contractAddress, _contractAbi.abi);
 
-  const investMoney = async () => {
-    const txn = await contract.deposit({ value: amount });
+  const investTokens = async () => {
+    const txn = await contract.investTokens(amount);
     await txn.wait();
     userBalance();
+  }
+  const gameStart = async () => {
+    const txn = await contract.gameStart();
+    await txn.wait();
   }
 
- 
-  const startFund = async () => {
-    const txn = await contract.deposit({ value: amount });
+
+  const buyItem = async () => {
+    const txn = await contract.buyItem(id,amount);
     await txn.wait();
     userBalance();
   }
-  const cancel = async () => {
-    userBalance();
-  }
-  const milestone = async () => {
-    const txn = await contract.deposit({ value: amount });
+  const sellItem = async () => {
+    const txn = await contract.sellItem(id,amount);
     await txn.wait();
     userBalance();
   }
-  const withdraw = async () => {
-    userBalance();
+  const prepareToken = async () => {
+    const txn = await contract.prepareToken();
+    await txn.wait();
+  }
+  const takeToken = async () => {
+    const txn = await contract.takeToken();
+    await txn.wait();
   }
   const reward = async () => {
-    userBalance();
+    const txn = await contract.reward();
+    await txn.wait();
   }
 
   const userBalance = async () => {
@@ -53,88 +61,124 @@ function App() {
     if (connection.address) {
       userBalance();
       userAddress(connection.address)
-    }else{userAddress("")}
+    } else { userAddress("") }
   }, [connection.address])
 
   return (
+   
    <Box bgColor="#093657">
-   <Center h="100vh">
-      <Box
-        borderRadius="10px"
-        p="5"
-        alignItems="center"
-        w="xl"
-        bgColor="#fff"
-        as='container'>
+      <Center h="100vh">
         <Box
-          display="flex"
-          justifyContent="center">
-          <Box>
-            <Heading
-              borderBottom="1px"
-              color="#093657"
-              p={4} as='h2'
-
-              size='xl'>ZetToken Fund App</Heading>
-          </Box>
-        </Box>
-        <br></br>
-        <section>
-          <Box display="flex"
+          borderRadius="10px"
+          p="5"
+          alignItems="center"
+          w="xl"
+          bgColor="#fff"
+          as='container'>
+          <Box
+            display="flex"
             justifyContent="center">
-            <Box borderBottom="1px"
-              p="4"
-              width="70%">
+            <Box>
+              <Heading
+                borderBottom="1px"
+                color="#093657"
+                p={4} as='h2'
+
+                size='xl'>ZetToken Game App</Heading>
+            </Box>
+          </Box>
+          <br></br>
+          <section>
+            <Box display="flex"
+              justifyContent="center">
+              <Box borderBottom="1px"
+                p="4"
+                width="70%">
                 <Text as='b' fontSize='md'>
                   User Address:<br></br>
                   <Text mb={8} fontSize='sm' display="flex" width="40%" fontWeight="400">{connection.address}
                   </Text>
                 </Text>
-              <Grid templateColumns='repeat(3, 1fr)' gap={6}>
-                <Text  as='b' fontSize='md'>
-                  User Balance:<br></br>
-                  <Text fontWeight="400">{balance}
+                <Grid templateColumns='repeat(3, 1fr)' gap={6}>
+                  <Text as='b' fontSize='md'>
+                    User Balance:<br></br>
+                    <Text fontWeight="400">
+                      {connection.address ? "not connected" : ""}
+                    </Text>
                   </Text>
-                </Text>
-                <Text as='b' fontSize='md'>
-                  Start At:<br></br>
-                  <Text fontWeight="400">asda
+                  <Text as='b' fontSize='md'>
+                    Start At:<br></br>
+                    <Text fontWeight="400">asda
+                    </Text>
                   </Text>
-                </Text>
-                <Text as='b' fontSize='md'>End At:
-                  <br></br>
-                  <Text fontWeight="400">asda
+                  <Text as='b' fontSize='md'>Status:
+                    <br></br>
+                    <Text fontWeight="400">{connection.address ? "connected" : "not connected"}
+                    </Text>
                   </Text>
-                </Text>
-              </Grid>
+                </Grid>
+              </Box>
             </Box>
-          </Box>
-
-          <Box
-            display="flex"
-            justifyContent="center">
             <Box
-              mt={6}
-              p="4"
-              width="70%">
-              <Grid templateColumns='repeat(2, 1fr)' gap={6}>
-                <Button onClick={investMoney} colorScheme='green'>BUY</Button>
-                <Input type="number" onChange={(e) => setAmount(e.target.value)} placeholder="Ethers to ZTN" />
-                <Button onClick={startFund} colorScheme='green'>START FUND</Button>
-                <Input type="number" onChange={(e) => setAmount(e.target.value)} placeholder="Ethers to ZTN" />
-                <GridItem colSpan={2}>
-                  <Button onClick={cancel} rowSpan="" width="100%" colorScheme='red'>CANCEL FUND</Button>
-                </GridItem>
-                <Button onClick={milestone} colorScheme='purple'> MILESTONE</Button>
-                <Button onClick={withdraw} colorScheme='purple'>WITHDRAW</Button>
-              </Grid>
-
-              <Button mt={6} onClick={reward} colorScheme='purple' width="100%">REWARD</Button>
+              display="flex"
+              justifyContent="center">
+              <Box
+                mt={6}
+                p="4"
+                width="70%">
+                <Grid templateColumns='repeat(2, 1fr)' gap={6}>
+                  <Button onClick={investTokens} colorScheme='green'>BUY TOKEN</Button>
+                  <Input type="number" onChange={(e) => setAmount(e.target.value)} placeholder="Ethers to ZTN" />
+                  <GridItem colSpan={2}>
+                      <Button width="100%" onClick={gameStart} colorScheme='green'>
+                        START STAKE
+                        </Button>
+                  </GridItem>
+                      <Button onClick={buyItem} colorScheme='green'>
+                        BUY ITEM
+                        </Button>
+                  <GridItem colSpan={1}>
+                    <Input type="number"
+                      fontSize='xs'
+                      mr={1}
+                      width="45%"
+                      onChange={(e) => setAmount(e.target.value)}
+                      placeholder="amount" />
+                    <Input type="number" fontSize='xs'
+                      width="50%"
+                      onChange={(e) => setId(e.target.value)}
+                      placeholder="item id.." />
+                  </GridItem>
+                      <Button onClick={sellItem} colorScheme='red'>
+                        SELL ITEM
+                        </Button>
+                  <GridItem colSpan={1}>
+                    <Input type="number"
+                      fontSize='xs'
+                      mr={1}
+                      width="45%"
+                      onChange={(e) => setAmount(e.target.value)}
+                      placeholder="amount" />
+                    <Input type="number" fontSize='xs'
+                      width="50%"
+                      onChange={(e) => setId(e.target.value)}
+                      placeholder="item id.." />
+                  </GridItem>
+                      <Button onClick={prepareToken} colorScheme='blue'>
+                        PREPARE ITEM
+                        </Button>
+                      <Button onClick={takeToken} colorScheme='blue'>
+                        TAKE ITEM
+                        </Button>
+                  </Grid>
+                <Button mt={6} onClick={reward} colorScheme='blue' width="100%">
+                  REWARD
+                </Button>
+              </Box>
             </Box>
-          </Box>
-        </section>
-      </Box>
-    </Center>
+          </section>
+        </Box>
+      </Center>
     </Box>
   );
 }

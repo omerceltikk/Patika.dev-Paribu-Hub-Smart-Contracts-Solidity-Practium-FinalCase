@@ -10,7 +10,7 @@ contract RewardNFT is ERC721, Ownable {
 
     Counters.Counter private _tokenIdCounter;
 
-    constructor() ERC721("RewardNFT", "RWN") {}
+    constructor() ERC721("RewardNFT", "RWD") {}
 
     function safeMint(address to) public onlyOwner {
         uint256 tokenId = _tokenIdCounter.current();
