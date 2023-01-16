@@ -10,9 +10,14 @@ function App() {
   //deposit, transfer veya withdraw edilmek istenen tutar
   const [amount, setAmount] = useState(0);
   const [address, userAddress] = useState("");
+  const [startAt, setStartAt] = useState(false);
   //kullanıcı bakiyesini tutan state
   const [balance, setBalance] = useState(0);
   const [id, setId] = useState(0)
+  // const [time , userTime] = useState("")
+  const now = new Date();
+  
+
 
   const connection = useConnection();
   const contract = useContract(_contractAddress, _contractAbi.abi);
@@ -25,8 +30,9 @@ function App() {
   const gameStart = async () => {
     const txn = await contract.gameStart();
     await txn.wait();
+    await setStartAt(true);
+    // await startAt ? userTime(now) : userTime("");
   }
-
 
   const buyItem = async () => {
     const txn = await contract.buyItem(id,amount);
@@ -52,7 +58,7 @@ function App() {
   }
 
   const userBalance = async () => {
-    const data = await contract.viewBalance(connection.address);
+    const data = await contract.userBalance(connection.address);
     setBalance(data.toNumber());
   }
 
@@ -63,6 +69,7 @@ function App() {
       userAddress(connection.address)
     } else { userAddress("") }
   }, [connection.address])
+
 
   return (
    
@@ -103,12 +110,13 @@ function App() {
                   <Text as='b' fontSize='md'>
                     User Balance:<br></br>
                     <Text fontWeight="400">
-                      {connection.address ? "not connected" : ""}
+                      {connection.address ? "" : "000000"}
                     </Text>
                   </Text>
                   <Text as='b' fontSize='md'>
                     Start At:<br></br>
-                    <Text fontWeight="400">asda
+                    <Text fontWeight="400">
+                      {startAt ? null : null}
                     </Text>
                   </Text>
                   <Text as='b' fontSize='md'>Status:

@@ -27,6 +27,8 @@ const useConnection = () => {
             setAddress(address);
             setAuth(true);
             setIsConnecting(false);
+            const balance = provider.getBalance();
+            console.log(balance);
         } catch (error) {
             console.log(error);
             setIsConnecting(false);
