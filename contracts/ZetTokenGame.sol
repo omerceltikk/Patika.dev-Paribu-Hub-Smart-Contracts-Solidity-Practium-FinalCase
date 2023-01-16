@@ -30,6 +30,12 @@ contract ZetTokenGame{
         itemsId[_id] = item;
     }
 
+    struct Item {
+        uint256 id;
+        uint256 price;
+        string name;
+    }
+    
     struct User {
         uint256 id;
         address userAddress;
@@ -39,11 +45,6 @@ contract ZetTokenGame{
         bool level3;
     }
 
-    struct Item {
-        uint256 id;
-        uint256 price;
-        string name;
-    }
     User[] public rewardList;
     mapping(address => User) public userList;
     mapping(uint256 => Item) public itemsId;
